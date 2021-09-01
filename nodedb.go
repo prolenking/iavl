@@ -35,7 +35,7 @@ var (
 )
 
 type nodeDB struct {
-	mtx            sync.RWMutex     // Read/write lock.
+	mtx            sync.Mutex       // Read/write lock.
 	db             dbm.DB           // Persistent node storage.
 	batch          dbm.Batch        // Batched writing buffer.
 	opts           Options          // Options to customize for pruning/writing
@@ -67,8 +67,8 @@ func newNodeDB(db dbm.DB, cacheSize int, opts *Options) *nodeDB {
 // GetNode gets a node from memory or disk. If it is an inner node, it does not
 // load its children.
 func (ndb *nodeDB) GetNode(hash []byte) *Node {
-	ndb.mtx.RLock()
-	defer ndb.mtx.RUnlock()
+	ndb.mtx.Lock()
+	defer ndb.mtx.Unlock()
 
 	if len(hash) == 0 {
 		panic("nodeDB.GetNode() requires hash")
